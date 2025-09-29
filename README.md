@@ -10,6 +10,7 @@ A TypeScript/JavaScript client to integrate payment services (Chapa, Telebirr, M
 npm install @realkal/easy-pay
 # or
 yarn add @realkal/easy-pay
+pnpm add @realkal/easy-pay
 ```
 
 ---
@@ -133,7 +134,7 @@ await easyPay.createPayment({
   mobile: "0900123456",
   amount: 1000,
   paymentType: "chapa",
-  txRef: "CUSTOMREF123",
+  txRef: "CUSTOM_REF_123",
   meta: { orderId: "ORDER789" },
 });
 ```
