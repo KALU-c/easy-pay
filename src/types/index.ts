@@ -60,7 +60,10 @@ export const easyPaySchema = z.object({
 export const createPaymentSchema = z.object({
 	mobile: z
 		.string()
-		.refine((val) => /^(251\d{9}|0\d{9}|9\d{8}|7\d{8})$/.test(val), {
+		.refine((val) => {
+			const cleaned = val.replace(/\s|\+/g, "");
+			return /^(251\d{9}|0\d{9}|9\d{8}|7\d{8})$/.test(cleaned);
+		}, {
 			message: "Please enter a valid Phone Number.",
 		}),
 	paymentType: PaymentOptions,
@@ -90,7 +93,7 @@ export const createPaymentSchema = z.object({
 }, {
 	message: "Please enter a valid phone number for the selected payment method.",
 	path: ["mobile"]
-})
+});
 
 
 export type EasyPaymentProps = z.infer<typeof easyPaySchema>
