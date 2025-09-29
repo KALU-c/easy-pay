@@ -75,30 +75,22 @@ export const createPaymentSchema = z.object({
 		description: z.string().optional()
 	}).optional(),
 	meta: z.record(z.string(), z.any()).optional()
-}).refine(
-	(data) => {
-		if (data.paymentType === "telebirr") {
-			return /^(2519\d{8}|09\d{8}|9\d{8})$/.test(data.mobile);
-		}
-		return true;
-	},
-	{
-		message: "Please enter a valid Telebirr Phone Number.",
-		path: ["mobile"],
+}).refine((data) => {
+	const cleaned = data.mobile.replace(/\s|\+/g, "");
+
+	if (data.paymentType === "telebirr") {
+		return /^(2519\d{8}|09\d{8}|9\d{8})$/.test(cleaned);
 	}
-)
-	.refine(
-		(data) => {
-			if (data.paymentType === "mpesa") {
-				return /^(2517\d{8}|07\d{8}|7\d{8})$/.test(data.mobile);
-			}
-			return true;
-		},
-		{
-			message: "Please enter a valid Mpesa Phone Number.",
-			path: ["mobile"],
-		}
-	);
+
+	if (data.paymentType === "mpesa") {
+		return /^(2517\d{8}|07\d{8}|7\d{8})$/.test(cleaned);
+	}
+
+	return true;
+}, {
+	message: "Please enter a valid phone number for the selected payment method.",
+	path: ["mobile"]
+})
 
 
 export type EasyPaymentProps = z.infer<typeof easyPaySchema>
