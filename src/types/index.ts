@@ -121,14 +121,19 @@ export type PaymentData = {
 	currency: "ETB";
 	payment_method: "telebirr" | "cbebirr" | "ebirr" | "mpesa" | "chapa";
 	tx_ref: string;
+	/** @deprecated Not yet supported by Chapa */
 	email?: string;
+	/** @deprecated Not yet supported by Chapa */
 	first_name?: string;
+	/** @deprecated Not yet supported by Chapa */
 	last_name?: string;
+	/** @deprecated Not yet supported by Chapa */
 	customization?: {
 		logo?: string | undefined;
 		title?: string | undefined;
 		description?: string | undefined;
 	} | undefined;
+	/** @deprecated Not yet supported by Chapa */
 	meta?: Record<string, any> | undefined;
 }
 

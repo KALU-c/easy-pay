@@ -85,9 +85,9 @@ await easyPay.createPayment({
   mobile: "0900123456",
   amount: 500,
   paymentType: "chapa",
-  first_name: "Endekalu",
-  last_name: "Zemenu",
-  email: "realkal.ez@gmail.com",
+  first_name: "John",
+  last_name: "Doe",
+  email: "johndoe@example.com",
 });
 ```
 
@@ -159,9 +159,9 @@ await easyPay.createPayment({
   mobile: "0900123456",
   amount: 750,
   paymentType: "telebirr",
-  first_name: "Endekalu",
-  last_name: "Zemenu",
-  email: "realkal.ez@gmail.com",
+  first_name: "John",
+  last_name: "Doe",
+  email: "john.doe@gmail.com",
   customization: {
     logo: "https://example.com/logo.png",
     title: "Charity Donation",
