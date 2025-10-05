@@ -15,7 +15,16 @@
     "dev": "tsup src/index.ts --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "chapa",
+    "payment",
+    "checkout",
+    "typescript",
+    "easy-pay",
+    "custom-payment",
+    "online-payment",
+    "fintech"
+  ],
   "author": "Endekalu Zemenu",
   "license": "MIT",
   "packageManager": "pnpm@10.7.1",
