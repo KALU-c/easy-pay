@@ -8,7 +8,7 @@ import {
 	easyPaySchema,
 	VerifyPaymentResponse,
 	type EasyPaymentProps
-} from "../types/index.js";
+} from "../types/index";
 import { nanoid } from "nanoid";
 import axios from "axios";
 
