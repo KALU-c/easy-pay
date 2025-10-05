@@ -2,9 +2,7 @@
 
 A TypeScript/JavaScript client to integrate payment services (Chapa, Telebirr, M-Pesa, Ebirr, CBE Birr) easily in web or Node.js applications. Supports inline payments, hosted payments, and automatic payment verification with retries.
 
----
-
-## Installation
+### Installation
 
 ```bash
 npm install @realkal/easy-pay
@@ -13,9 +11,7 @@ yarn add @realkal/easy-pay
 pnpm add @realkal/easy-pay
 ```
 
----
-
-## Importing
+### Importing
 
 ```ts
 import { easyPay } from "@realkal/easy-pay";
@@ -23,38 +19,37 @@ import { easyPay } from "@realkal/easy-pay";
 
 ---
 
-## Client Configuration (`easyPay`)
+### Client Configuration (`easyPay`)
 
 | Option           | Type                      | Required | Default                                          | Description                                   |
 | ---------------- | ------------------------- | -------- | ------------------------------------------------ | --------------------------------------------- |
-| `publicKey`      | `string`                  | ✅       | -                                                | Chapa public key                              |
-| `secretKey`      | `string`                  | ❌       | -                                                | Chapa secret key, required for Chapa payments |
-| `paymentOptions` | `string[]`                | ❌       | `["telebirr","cbebirr","ebirr","mpesa","chapa"]` | Allowed payment methods                       |
-| `callbackUrl`    | `string`                  | ❌       | -                                                | URL to receive server-side callback           |
-| `returnUrl`      | `string`                  | ❌       | -                                                | URL to redirect after payment                 |
-| `generateRefId`  | `() => string`            | ❌       | Random nanoid(10)                                | Custom transaction reference generator        |
-| `onSuccess`      | `(paymentInfo) => void`   | ❌       | `() => {}`                                       | Callback after successful payment             |
-| `onFailure`      | `(error: string) => void` | ❌       | `() => {}`                                       | Callback after failed payment                 |
-| `maxRetry`       | `number`                  | ❌       | 3                                                | Max retries for pending payments              |
-| `retryDelay`     | `number`                  | ❌       | 3                                                | Delay between retries in seconds              |
+| `publicKey`      | `string`                  | ✅        | -                                                | Chapa public key                              |
+| `secretKey`      | `string`                  | ❌        | -                                                | Chapa secret key, required for Chapa payments |
+| `paymentOptions` | `string[]`                | ❌        | `["telebirr","cbebirr","ebirr","mpesa","chapa"]` | Allowed payment methods                       |
+| `callbackUrl`    | `string`                  | ❌        | -                                                | URL to receive server-side callback           |
+| `returnUrl`      | `string`                  | ❌        | -                                                | URL to redirect after payment                 |
+| `generateRefId`  | `() => string`            | ❌        | Random `nanoid(10)`                              | Custom transaction reference generator        |
+| `onSuccess`      | `(paymentInfo) => void`   | ❌        | `() => {}`                                       | Callback after successful payment             |
+| `onFailure`      | `(error: string) => void` | ❌        | `() => {}`                                       | Callback after failed payment                 |
+| `maxRetry`       | `number`                  | ❌        | 3                                                | Max retries for pending payments              |
+| `retryDelay`     | `number`                  | ❌        | 3                                                | Delay between retries in seconds              |
 
----
 
-## Payment Properties (`CreatePaymentProps`)
+### Payment Properties (`CreatePaymentProps`)
 
 | Property        | Type                                                       | Required | Description                                               |
 | --------------- | ---------------------------------------------------------- | -------- | --------------------------------------------------------- |
-| `mobile`        | `string`                                                   | ✅       | User phone number, validated per payment type             |
-| `paymentType`   | `"telebirr" \| "cbebirr" \| "ebirr" \| "mpesa" \| "chapa"` | ✅       | Payment method                                            |
-| `amount`        | `number`                                                   | ✅       | Payment amount (minimum 1)                                |
-| `txRef`         | `string`                                                   | ❌       | Optional transaction reference, auto-generated if missing |
-| `email`         | `string`                                                   | ❌       | Customer email                                            |
-| `first_name`    | `string`                                                   | ❌       | Customer first name                                       |
-| `last_name`     | `string`                                                   | ❌       | Customer last name                                        |
-| `customization` | `object`                                                   | ❌       | Payment UI customization options                          |
-| `meta`          | `Record<string, any>`                                      | ❌       | Extra metadata attached to the payment                    |
+| `mobile`        | `string`                                                   | ✅        | User phone number, validated per payment type             |
+| `paymentType`   | `"telebirr" \| "cbebirr" \| "ebirr" \| "mpesa" \| "chapa"` | ✅        | Payment method                                            |
+| `amount`        | `number`                                                   | ✅        | Payment amount (minimum 1)                                |
+| `txRef`         | `string`                                                   | ❌        | Optional transaction reference, auto-generated if missing |
+| `email`         | `string`                                                   | ❌        | Customer email                                            |
+| `first_name`    | `string`                                                   | ❌        | Customer first name                                       |
+| `last_name`     | `string`                                                   | ❌        | Customer last name                                        |
+| `customization` | `object`                                                   | ❌        | Payment UI customization options                          |
+| `meta`          | `Record<string, any>`                                      | ❌        | Extra metadata attached to the payment                    |
 
-**Customization object:**
+**Customization object example:**
 
 ```ts
 customization: {
@@ -74,29 +69,28 @@ meta: {
 }
 ```
 
----
 
 ## Usage
 
 ### 1. Basic Chapa Payment
 
 ```ts
-await easyPay.createPayment({
-  mobile: "0900123456",
-  amount: 500,
-  paymentType: "chapa",
-  first_name: "John",
-  last_name: "Doe",
-  email: "johndoe@example.com",
-});
+const result: { success: boolean; data?: PaymentWithChapaResponse | InitiatePaymentResponse; message?: string } =
+  await easyPayClient.createPayment({
+    mobile: "0900123456",
+    amount: 500,
+    paymentType: "chapa",
+    first_name: "John",
+    last_name: "Doe",
+    email: "johndoe@example.com",
+  });
 ```
 
----
 
 ### 2. Payment with Customization
 
 ```ts
-await easyPay.createPayment({
+await easyPayClient.createPayment({
   mobile: "0700123456",
   amount: 300,
   paymentType: "mpesa",
@@ -108,12 +102,11 @@ await easyPay.createPayment({
 });
 ```
 
----
 
 ### 3. Payment with Metadata
 
 ```ts
-await easyPay.createPayment({
+await easyPayClient.createPayment({
   mobile: "0900123456",
   amount: 200,
   paymentType: "telebirr",
@@ -125,12 +118,11 @@ await easyPay.createPayment({
 });
 ```
 
----
 
-### 4. Payment with Custom `txRef` and Retry Options
+### 4. Payment with Custom `txRef`
 
 ```ts
-await easyPay.createPayment({
+await easyPayClient.createPayment({
   mobile: "0900123456",
   amount: 1000,
   paymentType: "chapa",
@@ -139,12 +131,11 @@ await easyPay.createPayment({
 });
 ```
 
----
 
 ### 5. Full Example (All Options)
 
 ```ts
-const easyPay = new easyPay({
+const easyPayClient = new easyPay({
   publicKey: "CHAPUBK-xxxxxxxx",
   secretKey: "CHASECK-xxxxxxxx",
   callbackUrl: "https://example.com/callback",
@@ -155,7 +146,7 @@ const easyPay = new easyPay({
   onFailure: (error) => console.log("Payment failed:", error),
 });
 
-await easyPay.createPayment({
+const paymentResult = await easyPayClient.createPayment({
   mobile: "0900123456",
   amount: 750,
   paymentType: "telebirr",
@@ -175,19 +166,70 @@ await easyPay.createPayment({
 });
 ```
 
+**Return type for `createPayment`:**
+
+```ts
+type CreatePaymentReturn =
+  | { success: true; data: PaymentWithChapaResponse | InitiatePaymentResponse }
+  | { success: false; message: string };
+```
+
 ---
 
 ## Payment Verification
 
 ```ts
-const verification = await easyPay.verifyPayment("TX_REF_123", "chapa");
+const verification: { success: boolean; data?: VerifyPaymentResponse; message?: string } =
+  await easyPayClient.verifyPayment("TX_REF_123", "chapa");
 console.log(verification);
 ```
 
-- Automatically retries if the payment is pending.
-- Calls `onSuccess` or `onFailure` callbacks automatically.
+**Return type for `verifyPayment`:**
+
+```ts
+type VerifyPaymentReturn =
+  | { success: true; data: VerifyPaymentResponse }
+  | { success: false; message: string };
+```
+
+* Automatically retries if the payment is pending.
+* Calls `onSuccess` or `onFailure` callbacks automatically.
+* Retry behavior is configurable via `maxRetry` and `retryDelay`.
 
 ---
+
+### Return Types Overview
+
+| Method          | Success Type (`success: true`)                              | Failure Type (`success: false`) |
+| --------------- | ----------------------------------------------------------- | ------------------------------- |
+| `createPayment` | `PaymentWithChapaResponse` **or** `InitiatePaymentResponse` | `{ message: string }`           |
+| `verifyPayment` | `VerifyPaymentResponse`                                     | `{ message: string }`           |
+
+**TypeScript examples:**
+
+```ts
+// createPayment
+type CreatePaymentReturn =
+  | { success: true; data: PaymentWithChapaResponse | InitiatePaymentResponse }
+  | { success: false; message: string };
+
+// verifyPayment
+type VerifyPaymentReturn =
+  | { success: true; data: VerifyPaymentResponse }
+  | { success: false; message: string };
+```
+
+
+---
+
+## Notes
+
+* The `easyPay` client supports multiple payment methods in the same configuration.
+* Chapa payments require a `secretKey`; others do not.
+* Inline payments automatically verify transactions.
+* Hosted payments return a `checkout_url` for redirection.
+* Return types are consistent and always include a `success` boolean.
+
 
 ## License
 
