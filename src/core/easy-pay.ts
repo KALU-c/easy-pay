@@ -7,7 +7,8 @@ import {
 	PaymentWithChapaResponse,
 	easyPaySchema,
 	VerifyPaymentResponse,
-	type EasyPaymentProps
+	type EasyPaymentProps,
+	EasyPayResponse
 } from "../types/index";
 import { nanoid } from "nanoid";
 import axios from "axios";
@@ -49,11 +50,13 @@ export class easyPay {
 
 	// ------------------ PUBLIC METHODS ------------------
 
-	async createPayment(paymentOptions: CreatePaymentProps) {
+	async createPayment(paymentOptions: CreatePaymentProps): Promise<EasyPayResponse> {
 		this.isLoading = true;
 		try {
 			const validatedData = this.validateSchema(createPaymentSchema, paymentOptions, "Payment validation failed");
-			if (!validatedData) return { success: false, message: this.error };
+			if (!validatedData) {
+				return { success: false, message: this.error ?? "Payment validation failed", data: null };
+			}
 
 			const paymentData: PaymentData = {
 				amount: validatedData.amount.toString(),
@@ -75,7 +78,7 @@ export class easyPay {
 		}
 	}
 
-	async verifyPayment(refId: string, paymentMethod: string) {
+	async verifyPayment(refId: string, paymentMethod: string): Promise<EasyPayResponse> {
 		this.isLoading = true;
 		try {
 			let isVerified = false;
@@ -100,7 +103,16 @@ export class easyPay {
 						txRef: verifyResponse.trx_ref,
 						createdAt: verifyResponse.data!.created_at
 					});
-					return { success: true, data: verifyResponse };
+					return {
+						success: true,
+						message: "Payment verified successfully",
+						data: {
+							amount: verifyResponse.data!.amount,
+							txRef: verifyResponse.trx_ref,
+							createdAt: verifyResponse.data!.created_at,
+							status: verifyResponse.status
+						}
+					};
 				}
 
 				if (verifyResponse.data?.status !== "pending") {
@@ -121,18 +133,13 @@ export class easyPay {
 
 	// ------------------ PRIVATE METHODS ------------------
 
-	private async initiatePayment(paymentData: PaymentData) {
+	private async initiatePayment(paymentData: PaymentData): Promise<EasyPayResponse> {
 		try {
 			this.paymentOption = paymentData.payment_method ?? this.options.paymentOptions![0];
 
 			if (this.paymentOption === "chapa") {
 				const chapaResponse = await this.submitChapa(paymentData);
-
-				if (!chapaResponse || !("status" in chapaResponse) || chapaResponse.status !== "success") {
-					return this.handleError("Chapa payment initiation failed");
-				}
-
-				return { success: true, data: chapaResponse };
+				return chapaResponse;
 			}
 
 			const formData = new FormData();
@@ -157,11 +164,10 @@ export class easyPay {
 		}
 	}
 
-	private async submitChapa(paymentData: PaymentData) {
+
+	private async submitChapa(paymentData: PaymentData): Promise<EasyPayResponse> {
 		if (!this.options.secretKey) {
-			return this.handleError(
-				"Cannot initiate Chapa payment: Secret key is missing. Please provide your Chapa secret key."
-			);
+			return this.handleError("Cannot initiate Chapa payment: Secret key is missing");
 		}
 
 		const fields: Record<string, string> = {
@@ -192,8 +198,15 @@ export class easyPay {
 			return this.handleError(`Chapa payment initiation failed: ${data.message}`);
 		}
 
-		this.options.onSuccess?.({ message: data.message, data: data.data ?? null, status: data.status });
-		return data;
+		this.options.onSuccess?.({ message: data.message, status: data.status, data: data.data ?? null });
+		return {
+			success: true,
+			message: data.message,
+			data: {
+				checkoutUrl: data.data?.checkout_url,
+				status: data.status
+			}
+		};
 	}
 
 	private async post<T>(url: string, data: any, headers?: Record<string, string>) {
@@ -209,11 +222,11 @@ export class easyPay {
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
-	private handleError(message: string, originalError?: any) {
+	private handleError(message: string, originalError?: any): EasyPayResponse {
 		const fullMessage = originalError ? `${message}: ${originalError?.message ?? originalError}` : message;
 		this.error = fullMessage;
 		this.options.onFailure?.(fullMessage);
-		return { success: false, message: fullMessage };
+		return { success: false, message: fullMessage, data: null };
 	}
 
 	private validateSchema<T>(schema: z.ZodSchema<T>, data: unknown, errorMessage?: string): T | undefined {

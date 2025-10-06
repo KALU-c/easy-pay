@@ -157,3 +157,15 @@ export type PaymentWithChapaResponse = {
 		checkout_url: string,
 	},
 }
+
+export type EasyPayResponse = {
+	success: boolean;
+	message: string;
+	data?: {
+		checkoutUrl?: string; // For Chapa hosted
+		txRef?: string;       // For mobile money
+		amount?: string;
+		status?: string;
+		createdAt?: string;
+	} | null;
+};
