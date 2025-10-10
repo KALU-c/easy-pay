@@ -21,19 +21,18 @@ import { easyPay } from "@realkal/easy-pay";
 
 ### Client Configuration (`easyPay`)
 
-| Option           | Type                         | Required | Default                                          | Description                                   |
-| ---------------- | ---------------------------- | -------- | ------------------------------------------------ | --------------------------------------------- |
-| `publicKey`      | `string`                     | ✅        | -                                                | Chapa public key                              |
-| `secretKey`      | `string`                     | ❌        | -                                                | Chapa secret key, required for Chapa payments |
-| `paymentOptions` | `string[]`                   | ❌        | `["telebirr","cbebirr","ebirr","mpesa","chapa"]` | Allowed payment methods                       |
-| `callbackUrl`    | `string`                     | ❌        | -                                                | URL to receive server-side callback           |
-| `returnUrl`      | `string`                     | ❌        | -                                                | URL to redirect after payment                 |
-| `generateRefId`  | `() => string`               | ❌        | Random `nanoid(10)`                              | Custom transaction reference generator        |
-| `onSuccess`      | `(paymentInfo: any) => void` | ❌        | `() => {}`                                       | Callback after successful payment             |
-| `onFailure`      | `(error: string) => void`    | ❌        | `() => {}`                                       | Callback after failed payment                 |
-| `maxRetry`       | `number`                     | ❌        | 3                                                | Max retries for pending payments              |
-| `retryDelay`     | `number`                     | ❌        | 3                                                | Delay between retries in seconds              |
-
+| Option           | Type       | Required | Default                                                                 | Description                                   |
+| ---------------- | ---------- | -------- | ----------------------------------------------------------------------- | --------------------------------------------- |
+| `publicKey`      | `string`   | ✅        | -                                                                       | Chapa public key                              |
+| `secretKey`      | `string`   | ❌        | -                                                                       | Chapa secret key, required for Chapa payments and transaction verification |
+| `paymentOptions` | `string[]` | ❌        | ```["telebirr", "cbebirr", "ebirr", "mpesa",   "chapa"]``` | Allowed payment methods                       |
+| `callbackUrl`    | `string`   | ❌        | -                                                                       | URL to receive server-side callback           |
+| `returnUrl`      | `string`   | ❌        | -                                                                       | URL to redirect after payment                 |
+| `generateRefId`  | `() => string` | ❌    | Random `nanoid(10)`                                                     | Custom transaction reference generator        |
+| `onSuccess`      | `(paymentInfo: any) => void` | ❌ | `() => {}`                                                           | Callback after successful payment             |
+| `onFailure`      | `(error: string) => void`    | ❌ | `() => {}`                                                           | Callback after failed payment                 |
+| `maxRetry`       | `number`   | ❌        | 3                                                                       | Max retries for pending payments              |
+| `retryDelay`     | `number`   | ❌        | 3                                                                       | Delay between retries in seconds              |
 
 ### Payment Properties (`CreatePaymentProps`)
 
@@ -201,6 +200,20 @@ if (paymentResult.success) {
 }
 ```
 
+### 6. Verify Transaction Server-Side (New)
+
+You can verify any Chapa transaction server-side using `verifyTransaction` with the `secretKey`.
+
+```ts
+const transactionResult = await easyPayClient.verifyTransaction("TX_REF_123");
+
+if (transactionResult.success) {
+  console.log("Transaction verified successfully:", transactionResult.data);
+} else {
+  console.error("Transaction verification failed:", transactionResult.message);
+}
+```
+
 ---
 
 ## Payment Verification
@@ -236,7 +249,7 @@ type EasyPayResponse = {
 };
 ```
 
-* Both `createPayment` and `verifyPayment` now always return `EasyPayResponse`.
+* Both `createPayment`, `verifyPayment`, and `verifyTransaction` now always return `EasyPayResponse`.
 * `message` is always a string.
 * `data` is either a populated object or `null`.
 
@@ -245,7 +258,7 @@ type EasyPayResponse = {
 ## Notes
 
 * Supports multiple payment methods in the same configuration.
-* Chapa payments require `secretKey`; others do not.
+* Chapa payments and transaction verification require `secretKey`; others do not.
 * Inline payments automatically verify transactions.
 * Hosted payments return a `checkout_url`.
 * Return types are fully type-safe and consistent.
