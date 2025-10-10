@@ -151,7 +151,7 @@ export class easyPay {
 					message: "Payment verified successfully",
 					data: {
 						amount: verifyResponse.data!.amount.toString(),
-						txRef: verifyResponse.data?.tx_ref,
+						txRef: verifyResponse.data?.reference,
 						createdAt: verifyResponse.data!.created_at,
 						status: verifyResponse.status
 					}
