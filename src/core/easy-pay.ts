@@ -8,7 +8,8 @@ import {
 	easyPaySchema,
 	VerifyPaymentResponse,
 	type EasyPaymentProps,
-	EasyPayResponse
+	EasyPayResponse,
+	VerifyTransactionResponse
 } from "../types/index";
 import { nanoid } from "nanoid";
 import axios from "axios";
@@ -21,6 +22,7 @@ export class easyPay {
 	private chapaUrl = "https://inline.chapaservices.net/v1/inline/charge";
 	private chapaHostedUrl = "https://api.chapa.co/v1/hosted/pay";
 	private chapaVerifyUrl = "https://inline.chapaservices.net/v1/inline/validate";
+	private chapaVerifyTransactionUrl = "https://api.chapa.co/v1/transaction/verify"
 	private chapaAcceptPaymentUrl = "https://api.chapa.co/v1/transaction/initialize";
 
 	private paymentOption:
@@ -131,6 +133,47 @@ export class easyPay {
 		}
 	}
 
+	async verifyTransaction(refId: string): Promise<EasyPayResponse> {
+		this.isLoading = true;
+		try {
+			const verifyResponse = await this.get<VerifyTransactionResponse>(`${this.chapaVerifyTransactionUrl}/${refId}`, {
+				Authorization: `Bearer ${this.options.secretKey}`
+			})
+
+			if (verifyResponse.status === "success") {
+				this.options.onSuccess?.({
+					amount: verifyResponse.data!.amount.toString(),
+					txRef: verifyResponse.data!.tx_ref,
+					createdAt: verifyResponse.data!.created_at
+				});
+				return {
+					success: true,
+					message: "Payment verified successfully",
+					data: {
+						amount: verifyResponse.data!.amount.toString(),
+						txRef: verifyResponse.data?.tx_ref,
+						createdAt: verifyResponse.data!.created_at,
+						status: verifyResponse.status
+					}
+				};
+			}
+
+			if (verifyResponse.status === "failed") {
+				return this.handleError(
+					`Transaction verification failed: ${verifyResponse.message ?? "Unknown error"}`
+				);
+			}
+
+			return this.handleError(
+				`Transaction verification returned unexpected status: ${verifyResponse.status}`
+			);
+		} catch (error: any) {
+			return this.handleError("Error during transaction verification", error);
+		} finally {
+			this.isLoading = false;
+		}
+	}
+
 	// ------------------ PRIVATE METHODS ------------------
 
 	private async initiatePayment(paymentData: PaymentData): Promise<EasyPayResponse> {
@@ -212,6 +255,15 @@ export class easyPay {
 	private async post<T>(url: string, data: any, headers?: Record<string, string>) {
 		try {
 			const response = await axios.post<T>(url, data, { headers });
+			return response.data;
+		} catch (error: any) {
+			throw new Error(error?.message ?? "Unknown axios error");
+		}
+	}
+
+	private async get<T>(url: string, headers?: Record<string, string>) {
+		try {
+			const response = await axios.get<T>(url, { headers });
 			return response.data;
 		} catch (error: any) {
 			throw new Error(error?.message ?? "Unknown axios error");

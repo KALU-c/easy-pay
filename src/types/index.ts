@@ -150,6 +150,33 @@ export type VerifyPaymentResponse = {
 	status: string,
 }
 
+export type VerifyTransactionResponse = {
+	message: string
+	status: "success" | "failed"
+	data: {
+		first_name: string,
+		last_name: string,
+		email: string,
+		currency: string,
+		amount: number,
+		charge: number,
+		mode: string,
+		method: string,
+		type?: string,
+		status: string,
+		reference: string,
+		tx_ref: string,
+		customization: {
+			title?: string,
+			description?: string,
+			logo?: string
+		} | null,
+		meta: any | null,
+		created_at: string,
+		updated_at: string
+	} | null
+}
+
 export type PaymentWithChapaResponse = {
 	message: string,
 	status: "success" | "failed",
