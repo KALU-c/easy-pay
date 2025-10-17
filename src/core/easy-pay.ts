@@ -97,7 +97,7 @@ export class easyPay {
 					Authorization: `Bearer ${this.options.publicKey}`
 				});
 
-				if (verifyResponse.status === "success") {
+				if (verifyResponse.data?.status === "success") {
 					isVerified = true;
 					this.error = undefined;
 					this.options.onSuccess?.({
@@ -112,7 +112,7 @@ export class easyPay {
 							amount: verifyResponse.data!.amount,
 							txRef: verifyResponse.trx_ref,
 							createdAt: verifyResponse.data!.created_at,
-							status: verifyResponse.status
+							status: verifyResponse.data?.status
 						}
 					};
 				}
