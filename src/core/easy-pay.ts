@@ -20,7 +20,7 @@ export class easyPay {
 	public error: string | undefined;
 
 	private chapaUrl = "https://inline.chapaservices.net/v1/inline/charge";
-	private chapaHostedUrl = "https://api.chapa.co/v1/hosted/pay";
+	// private chapaHostedUrl = "https://api.chapa.co/v1/hosted/pay";
 	private chapaVerifyUrl = "https://inline.chapaservices.net/v1/inline/validate";
 	private chapaVerifyTransactionUrl = "https://api.chapa.co/v1/transaction/verify"
 	private chapaAcceptPaymentUrl = "https://api.chapa.co/v1/transaction/initialize";
@@ -122,7 +122,10 @@ export class easyPay {
 				}
 
 				retries++;
-				await this.delay(retryDelay);
+
+				if (retries < maxRetry) {
+					await this.delay(retryDelay);
+				}
 			}
 
 			return this.handleError("Payment verification timed out");
